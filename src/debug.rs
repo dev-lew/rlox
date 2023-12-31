@@ -27,12 +27,12 @@ impl<'a> Disassembler<'a> {
     fn disassemble_instruction(&mut self, instruction: Opcode) {
         print!("{:04} ", self.offset);
 
-	let line = Chunk::get_line(self.offset, &self.chunk.lines);
+        let line = Chunk::get_line(self.offset, &self.chunk.lines);
 
         if self.offset > 0 && line == Chunk::get_line(self.offset - 1, &self.chunk.lines) {
             print!("   | ");
         } else {
-            print!("{:4} ", self.chunk.lines[self.offset].line)
+            print!("{:4} ", line)
         }
 
         match instruction {

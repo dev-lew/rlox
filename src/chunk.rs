@@ -33,10 +33,7 @@ pub(crate) struct LineEncoding {
 
 impl LineEncoding {
     pub(crate) fn new(line: i32) -> Self {
-	Self {
-	    count: 1,
-	    line,
-	}
+        Self { count: 1, line }
     }
 }
 
@@ -55,15 +52,15 @@ impl Chunk {
     pub(crate) fn write_chunk(chunk: &mut Chunk, byte: u8, line: i32) {
         chunk.code.push(byte.into());
 
-	if let Some(prev) = chunk.lines.last_mut() {
-	    if prev.line == line {
-		prev.count += 1;
-	    } else {
-		chunk.lines.push(LineEncoding::new(line));
-	    }
-	} else {
-	    chunk.lines.push(LineEncoding::new(line));
-	}
+        if let Some(prev) = chunk.lines.last_mut() {
+            if prev.line == line {
+                prev.count += 1;
+            } else {
+                chunk.lines.push(LineEncoding::new(line));
+            }
+        } else {
+            chunk.lines.push(LineEncoding::new(line));
+        }
     }
 
     pub(crate) fn add_constant(chunk: &mut Chunk, value: Value) -> u8 {
@@ -72,16 +69,16 @@ impl Chunk {
     }
 
     pub(crate) fn get_line(index: usize, lines: &Vec<LineEncoding>) -> i32 {
-	let mut total = 0;
+        let mut total = 0;
 
-	for line_encoding in lines.iter() {
-	    total += line_encoding.count;
+        for line_encoding in lines.iter() {
+            total += line_encoding.count;
 
-	    if index <= total.into() {
-		return line_encoding.line
-	    }
-	}
+            if index + 1 <= total.into() {
+                return line_encoding.line;
+            }
+        }
 
-	panic!()
+        panic!()
     }
 }
