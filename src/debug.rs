@@ -2,8 +2,8 @@ use crate::chunk::{Chunk, Opcode};
 use crate::value;
 
 pub(crate) struct Disassembler<'a> {
-    chunk: &'a Chunk,
-    name: &'a str,
+    pub(crate) chunk: &'a Chunk,
+    pub(crate) name: &'a str,
     offset: usize,
 }
 
@@ -20,11 +20,11 @@ impl<'a> Disassembler<'a> {
         println!("== {} ==", self.name);
 
         while self.offset < self.chunk.code.len() {
-            self.disassemble_instruction(self.chunk.code[self.offset])
+            self.disassemble_instruction(self.chunk.code[self.offset].into())
         }
     }
 
-    fn disassemble_instruction(&mut self, instruction: Opcode) {
+    pub(crate) fn disassemble_instruction(&mut self, instruction: Opcode) {
         print!("{:04} ", self.offset);
 
         let line = Chunk::get_line(self.offset, &self.chunk.lines);
@@ -38,6 +38,12 @@ impl<'a> Disassembler<'a> {
         match instruction {
             Opcode::OpReturn => self.simple_instruction("OP_RETURN"),
             Opcode::OpConstant => self.constant_instruction("OP_CONSTANT"),
+	    Opcode::OpConstantLong => self.constant_instruction("OP_CONSTANT_LONG"),
+	    Opcode::OpNegate => self.simple_instruction("OP_NEGATE"),
+	    Opcode::OpAdd => self.simple_instruction("OP_ADD"),
+	    Opcode::OpSubtract => self.simple_instruction("OP_SUBTRACT"),
+	    Opcode::OpMultiply => self.simple_instruction("OP_MULTIPLY"),
+	    Opcode::OpDivide => self.simple_instruction("OP_DIVIDE"),
         }
     }
 
