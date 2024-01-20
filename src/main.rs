@@ -1,38 +1,53 @@
 mod chunk;
+mod compiler;
 mod debug;
+mod scanner;
 mod value;
 mod vm;
 
+use std::env;
+use std::process;
+use std::fs;
+use std::io;
+use std::io::Write;
+
 use chunk::{Chunk, Opcode};
 use debug::Disassembler;
-use vm::VM;
+use vm::{InterpretResult, VM};
 
+fn repl(vm: &mut VM) {
+    let mut buf = String::with_capacity(1024);
+
+    print!("> ");
+    io::stdout().flush().ok().expect("Failed to flush stdout");
+    while let Ok(_) = io::stdin().read_line(&mut buf) {
+        vm.interpret(&buf);
+        print!("> ");
+	io::stdout().flush().ok().expect("Failed to flush stdout");
+    }
+}
+
+fn run_file(file_path: &str, vm: &mut VM) {
+    let source =
+        fs::read_to_string(file_path).unwrap_or_else(|_| panic!("Failed to read {}", file_path));
+
+    match vm.interpret(&source) {
+	InterpretResult::InterpretCompileError => process::exit(65),
+	InterpretResult::InterpretRuntimeError => process::exit(70),
+	_ => panic!(),
+    }
+
+
+}
 fn main() {
-    let mut chunk = Chunk::new();
-    let dummy_chunk = Chunk::new();
+    let args: Vec<String> = env::args().collect();
 
-    let mut constant = Chunk::add_constant(&mut chunk, 1.2);
-    // Chunk::write_chunk(&mut chunk, Opcode::OpConstantLong.into(), 122);
-    Chunk::write_chunk(&mut chunk, Opcode::OpConstant.into(), 123);
-    Chunk::write_chunk(&mut chunk, constant, 122);
+    let mut dummy_chunk = Chunk::new();
+    let mut vm = VM::new(&dummy_chunk);
 
-    constant = Chunk::add_constant(&mut chunk, 3.4);
-    Chunk::write_chunk(&mut chunk, Opcode::OpConstant.into(), 123);
-    Chunk::write_chunk(&mut chunk, constant, 123);
-    Chunk::write_chunk(&mut chunk, Opcode::OpAdd.into(), 123);
-
-    constant = Chunk::add_constant(&mut chunk, 5.6);
-    Chunk::write_chunk(&mut chunk, Opcode::OpConstant.into(), 123);
-    Chunk::write_chunk(&mut chunk, constant, 123);
-    Chunk::write_chunk(&mut chunk, Opcode::OpDivide.into(), 123);
-
-    Chunk::write_chunk(&mut chunk, Opcode::OpNegate.into(), 123);
-    Chunk::write_chunk(&mut chunk, Opcode::OpReturn.into(), 123);
-
-    let mut disassembler = Disassembler::new(&chunk, "test");
-    disassembler.disassemble_chunk();
-
-    let mut vm = VM::new_with_debug(&dummy_chunk, true);
-    vm.interpret(&chunk);
-
+    match args.len() {
+        1 => repl(&mut vm),
+        2 => run_file(&args[1], &mut vm),
+        _ => eprintln!("Usage: clox [path]"),
+    }
 }

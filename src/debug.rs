@@ -38,12 +38,12 @@ impl<'a> Disassembler<'a> {
         match instruction {
             Opcode::OpReturn => self.simple_instruction("OP_RETURN"),
             Opcode::OpConstant => self.constant_instruction("OP_CONSTANT"),
-	    Opcode::OpConstantLong => self.constant_instruction("OP_CONSTANT_LONG"),
-	    Opcode::OpNegate => self.simple_instruction("OP_NEGATE"),
-	    Opcode::OpAdd => self.simple_instruction("OP_ADD"),
-	    Opcode::OpSubtract => self.simple_instruction("OP_SUBTRACT"),
-	    Opcode::OpMultiply => self.simple_instruction("OP_MULTIPLY"),
-	    Opcode::OpDivide => self.simple_instruction("OP_DIVIDE"),
+            Opcode::OpConstantLong => self.constant_instruction("OP_CONSTANT_LONG"),
+            Opcode::OpNegate => self.simple_instruction("OP_NEGATE"),
+            Opcode::OpAdd => self.simple_instruction("OP_ADD"),
+            Opcode::OpSubtract => self.simple_instruction("OP_SUBTRACT"),
+            Opcode::OpMultiply => self.simple_instruction("OP_MULTIPLY"),
+            Opcode::OpDivide => self.simple_instruction("OP_DIVIDE"),
         }
     }
 

@@ -17,11 +17,11 @@ impl From<u8> for Opcode {
         match byte {
             0 => Opcode::OpReturn,
             1 => Opcode::OpConstant,
-	    2 => Opcode::OpConstantLong,
-	    3 => Opcode::OpNegate,
-	    4 => Opcode::OpAdd,
-	    5 => Opcode::OpSubtract,
-	    6 => Opcode::OpDivide,
+            2 => Opcode::OpConstantLong,
+            3 => Opcode::OpNegate,
+            4 => Opcode::OpAdd,
+            5 => Opcode::OpSubtract,
+            6 => Opcode::OpDivide,
             _ => panic!(),
         }
     }
@@ -32,11 +32,11 @@ impl From<Opcode> for u8 {
         match opcode {
             Opcode::OpReturn => 0,
             Opcode::OpConstant => 1,
-	    Opcode::OpConstantLong => 2,
-	    Opcode::OpNegate => 3,
-	    Opcode::OpAdd => 4,
-	    Opcode::OpSubtract => 5,
-	    Opcode::OpDivide => 6,
+            Opcode::OpConstantLong => 2,
+            Opcode::OpNegate => 3,
+            Opcode::OpAdd => 4,
+            Opcode::OpSubtract => 5,
+            Opcode::OpDivide => 6,
             _ => panic!(),
         }
     }
@@ -87,15 +87,15 @@ impl Chunk {
     pub(crate) fn write_constant(chunk: &mut Chunk, value: Value, line: i32) {
         chunk.constants.push(value);
 
-	let opcode;
+        let opcode;
 
-	if chunk.constants.len() > 255 {
-	    opcode = Opcode::OpConstantLong;
-	} else {
-	    opcode = Opcode::OpConstant;
-	}
+        if chunk.constants.len() > 255 {
+            opcode = Opcode::OpConstantLong;
+        } else {
+            opcode = Opcode::OpConstant;
+        }
 
-	Chunk::write_chunk(chunk, opcode.into(), line);
+        Chunk::write_chunk(chunk, opcode.into(), line);
     }
 
     pub(crate) fn get_line(index: usize, lines: &Vec<LineEncoding>) -> i32 {
