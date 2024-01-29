@@ -49,7 +49,6 @@ impl<'a> VM<'a> {
     }
 
     pub(crate) fn interpret(&mut self, source: &str) -> InterpretResult {
-	println!("In interpret!");
 	compiler::compile(source);
 	return InterpretResult::InterpretOk
     }

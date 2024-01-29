@@ -5,7 +5,6 @@ pub(crate) fn compile(source: &str) {
     let mut scanner = Scanner::new(source);
 
     loop {
-	println!("In compile!");
 	let result = scanner.scan_token();
 
 	match result {

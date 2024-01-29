@@ -1,8 +1,6 @@
 use std::iter::{Peekable, Take};
 use std::str::Chars;
 
-use crate::value::print_value;
-
 pub(crate) enum TokenType {
     // Single character tokens
     LeftParen,
@@ -102,7 +100,6 @@ impl<'a> ErrorToken<'a> {
 }
 
 pub(crate) struct Scanner<'a> {
-    pub(crate) source: Peekable<Chars<'a>>,
     pub(crate) start: Peekable<Chars<'a>>,
     pub(crate) current: Peekable<Chars<'a>>,
     pub(crate) current_index_in_lexeme: usize,
@@ -112,7 +109,6 @@ pub(crate) struct Scanner<'a> {
 impl<'a> Scanner<'a> {
     pub(crate) fn new(source: &'a str) -> Self {
         Self {
-            source: source.chars().peekable(),
             start: source.chars().peekable(),
             current: source.chars().peekable(),
             current_index_in_lexeme: 0,
@@ -151,8 +147,9 @@ impl<'a> Scanner<'a> {
         self.start = self.current.clone();
         // let mut binding = self.current.clone();
 
-        // let test = binding.peek().unwrap();
-        // println!("scan token test: {}", test);
+        // if let Some(test) = binding.peek() {
+        //     println!("scan token test: {}", test);
+	// }
 
         self.current_index_in_lexeme = 0usize;
 
@@ -160,7 +157,7 @@ impl<'a> Scanner<'a> {
             ScanResult::EOF(EOFToken::new(self.line))
         } else {
             let c = self.advance();
-            println!("Scan token...");
+            // println!("Scan token...");
 
             match c {
                 Some('(') => ScanResult::Normal(self.make_token(TokenType::LeftParen)),
@@ -244,10 +241,10 @@ impl<'a> Scanner<'a> {
             .clone()
             .take(self.current_index_in_lexeme)
             .collect();
-        println!(
-            "lex from scanner get lexeme: {} {}",
-            test, self.current_index_in_lexeme
-        );
+        // println!(
+        //     "lex from scanner get lexeme: {} {}",
+        //     test, self.current_index_in_lexeme
+        // );
         self.start.clone().take(self.current_index_in_lexeme)
     }
 
@@ -267,6 +264,7 @@ impl<'a> Scanner<'a> {
         loop {
             match self.current.peek() {
                 Some('\n') => {
+		    // println!("newline detected");
                     self.line += 1;
                     self.advance();
                 }
@@ -285,7 +283,7 @@ impl<'a> Scanner<'a> {
                     if c.is_whitespace() {
                         self.advance();
                     } else {
-                        println!("In whitespace");
+                        // println!("In whitespace");
                         return;
                     }
                 }
@@ -294,13 +292,20 @@ impl<'a> Scanner<'a> {
         }
     }
 
-    // fix at some point
     fn string(&mut self) -> ScanResult<'a> {
-        while let Some(c_ref) = self.current.peek() {
-            if *c_ref == '"' {
-                self.line += 1;
-                self.advance();
-            }
+        if let Some(c_ref) = self.current.peek() {
+	    let mut binding = *c_ref;
+
+	    while binding != '"' {
+		if binding == '\n' {
+		    self.line += 1;
+		}
+
+		match self.advance() {
+		    Some(next) => {binding = next},
+		    None => break,
+		}
+	    }
         }
 
         if self.is_at_end() {
@@ -346,7 +351,7 @@ impl<'a> Scanner<'a> {
     }
 
     fn identifier(&mut self) -> ScanResult<'a> {
-        println!("In identifier");
+        // println!("In identifier");
         let mut current = self.current.clone();
 
         if let Some(c_ref) = current.peek() {
@@ -355,20 +360,16 @@ impl<'a> Scanner<'a> {
             while self.is_alpha(binding) || binding.is_digit(10) {
                 match self.advance() {
                     Some(next) => {
-                        println!("char: {}", next);
+                        // println!("char: {}", next);
                         binding = next
                     }
                     None => break,
                 }
             }
 
-            println!("char now: {}", self.current_index_in_lexeme);
+            // println!("char now: {}", self.current_index_in_lexeme);
         }
         let ident_type = self.identifier_type();
-        match ident_type {
-            TokenType::Print => println!("yes baby"),
-            _ => println!("sus"),
-        };
         ScanResult::Normal(self.make_token(ident_type))
     }
 
